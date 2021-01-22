@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Insert title here</title>
+</head>
+<body>
+<a class="btn btn-large btn-success" href="/"
+   th:href="@{http://localhost:8082/tpmicroserviceBancaireFront}">Home</a> <br> <br>
+<table>
+	<thead>
+	<tr>
+		<th> Name</th>
+		<th> Account</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr th:if="${accounts.empty}">
+		<td colspan="2"> No Accounts Available</td>
+	</tr>
+	<tr th:each="account : ${accounts}">
+		<td><span th:text="${account.nom}"> Name </span></td>
+		<td><span th:text="${account.iban}"> Iban </span></td>
+	</tr>
+	</tbody>
+</table>
+
+<!-- <form th:action="@{/rest/country}" th:object="${countryName}" method="post">
+    <table border="1">
+        <tr>
+            <td><p>Enter name</p></td>
+            <td><input type="text" th:field="*{name}" /></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Submit" /></td>
+        </tr>
+    </table>
+</form>
+ -->
+</body>
+</html>
