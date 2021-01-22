@@ -1,11 +1,10 @@
 package org.imt.frontBancaire.Models;
 
 import java.util.Set;
-import java.util.UUID;
 
 public class Account {
 
-    private UUID id;
+    private Long compteId;
 
     private String nom;
 
@@ -15,12 +14,12 @@ public class Account {
 
     private Set<Transaction> transactions_credit;
 
-    public UUID getId() {
-        return id;
+    public Long getCompteId() {
+        return compteId;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setCompteId(Long compteId) {
+        this.compteId = compteId;
     }
 
     public String getNom() {

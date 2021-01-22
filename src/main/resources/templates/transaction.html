@@ -8,10 +8,13 @@
 <a class="btn btn-large btn-success" href="/"
    th:href="@{http://localhost:8082/tpmicroserviceBancaireFront}">Home</a> <br> <br>
 
-<table>
+<table border="1">
 	<thead>
 	<tr>
-		<th> Id Transaction</th>
+		<th> Description</th>
+		<th> Origine</th>
+		<th> Destination</th>
+		<th> Montant</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -19,7 +22,10 @@
 		<td colspan="2"> No Transactions Available</td>
 	</tr>
 	<tr th:each="transaction : ${transactions}">
-		<td><span th:text="${transaction.id}"> Identifier </span></td>
+		<td><span th:text="${transaction.description}"> Description </span></td>
+		<td><span th:text="${transaction.origine.nom}"> Origine </span></td>
+		<td><span th:text="${transaction.destination.nom}"> Destination </span></td>
+		<td><span th:text="${transaction.montant}"> Montant </span></td>
 	</tr>
 	</tbody>
 </table>

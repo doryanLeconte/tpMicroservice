@@ -1,13 +1,10 @@
 package org.imt.frontBancaire.Models;
 
-import java.util.UUID;
-
 public class Order {
     private String orderId;
-    private String name;
     private String description;
-    private UUID originId;
-    private UUID destinationId;
+    private Long originId;
+    private Long destinationId;
     private Long montant;
 
     public String getDescription() {
@@ -18,19 +15,19 @@ public class Order {
         this.description = description;
     }
 
-    public UUID getOriginId() {
+    public Long getOriginId() {
         return originId;
     }
 
-    public void setOriginId(UUID originId) {
+    public void setOriginId(Long originId) {
         this.originId = originId;
     }
 
-    public UUID getDestinationId() {
+    public Long getDestinationId() {
         return destinationId;
     }
 
-    public void setDestinationId(UUID destinationId) {
+    public void setDestinationId(Long destinationId) {
         this.destinationId = destinationId;
     }
 
@@ -50,11 +47,4 @@ public class Order {
         this.orderId = orderId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

@@ -88,29 +88,37 @@ public class ControllerBancaire {
         List<Account> comptes;
         if (comptesResEnt.getStatusCode().is2xxSuccessful()) {
             comptes = comptesResEnt.getBody();
-        } else
-            return "transaction";
-        if (comptes != null && !comptes.isEmpty()) {
-            IntStream.range(0, 100).forEachOrdered(n -> {
-                Order order = new Order();
+            if (comptes != null && !comptes.isEmpty()) {
+                IntStream.range(0, 100).forEachOrdered(n -> {
+                    Order order = new Order();
 
-                Random rand = new Random();
-                int randNum = rand.nextInt(comptes.size());
-                Account compteA = comptes.get(randNum);
-                order.setName("RAND" + n);
-                order.setOrderId("ORDER_" + n);
-                order.setDescription("Randomly generated transaction");
-                order.setOriginId(compteA.getId());
-                order.setDestinationId(comptes.get(rand.nextInt(comptes.size())).getId());
-                order.setMontant(rand.nextLong());
+                    Random rand = new Random();
+                    int randNum = rand.nextInt(comptes.size());
+                    Account compteA = comptes.get(randNum);
+                    order.setOrderId("ORDER_" + n);
+                    order.setDescription("Randomly generated transaction");
+                    order.setOriginId(compteA.getCompteId());
+                    order.setDestinationId(comptes.get(rand.nextInt(comptes.size())).getCompteId());
+                    order.setMontant(rand.nextLong());
 
-                rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE, MessagingConfig.ROUTING_KEY, order);
-            });
+                    rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE, MessagingConfig.ROUTING_KEY, order);
+                });
+            }
         }
-
         return getTransactions(model);
     }
-    
+
+    @GetMapping("/account/{id}/transactions")
+    public String getTransactions(@PathVariable(name = "id") String id, Model model) throws JSONException, IOException {
+
+        String json = readJsonFromUrl(URL_BACK + "/account/" + id + "/transactions");
+        ObjectMapper objMapper = new ObjectMapper();
+        List<Transaction> transactionResults = objMapper.readValue(json, List.class);
+
+        model.addAttribute("transactions", transactionResults);
+        return "transaction";
+    }
+
     @PostMapping("/account/create")
     public String createdAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) {
 
