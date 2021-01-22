@@ -3,7 +3,6 @@ package org.imt.frontBancaire.Controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.imt.frontBancaire.Models.Account;
 import org.imt.frontBancaire.Models.CreateAccount;
-<<<<<<< HEAD
 import org.imt.frontBancaire.Models.Order;
 import org.imt.frontBancaire.Models.Transaction;
 import org.imt.frontBancaire.config.MessagingConfig;
@@ -14,11 +13,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-=======
-import org.imt.frontBancaire.Models.Transaction;
-import org.json.JSONException;
-import org.springframework.http.HttpEntity;
->>>>>>> add delete, transactions by id, removed json
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,26 +25,19 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
-<<<<<<< HEAD
 import java.util.Random;
 import java.util.stream.IntStream;
-=======
->>>>>>> add delete, transactions by id, removed json
+
 
 @Controller
 @RequestMapping("/tpmicroserviceBancaireFront")
 public class ControllerBancaire {
 
-<<<<<<< HEAD
     private static final String URL_BACK = "http://localhost:8080/tpmicroserviceBancaire";
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
-=======
-    //modif test commit
 
-    private static final String URL_BACK = "http://localhost:8080/tpmicroserviceBancaire";
->>>>>>> add delete, transactions by id, removed json
 
     @GetMapping("")
     public String getIndex() {
@@ -57,32 +45,38 @@ public class ControllerBancaire {
     }
 
     @GetMapping("/accounts")
-<<<<<<< HEAD
-    public String getAccounts(Model model) throws JSONException, IOException {
 
-        String json = readJsonFromUrl(URL_BACK + "/account");
-        ObjectMapper objMapper = new ObjectMapper();
-        List<Account> accountResults = objMapper.readValue(json, List.class);
-
-        model.addAttribute("accounts", accountResults);
-=======
     public String getAccounts(Model model) {
         RestTemplate restTemplate = new RestTemplate();
         List<Account> accounts= restTemplate.getForObject(URL_BACK + "/account", List.class);
         model.addAttribute("accounts", accounts);
->>>>>>> add delete, transactions by id, removed json
         return "affichage";
     }
 
     @GetMapping("/transactions")
     public String getTransactions(Model model) throws JSONException, IOException {
 
-<<<<<<< HEAD
-        String json = readJsonFromUrl(URL_BACK + "/transactions");
-        ObjectMapper objMapper = new ObjectMapper();
-        List<Transaction> transactionResults = objMapper.readValue(json, List.class);
 
-        model.addAttribute("transactions", transactionResults);
+		RestTemplate restTemplate = new RestTemplate();
+		List<Transaction> transactions= restTemplate.getForObject(URL_BACK + "/transactions", List.class);
+
+        model.addAttribute("transactions", transactions);
+        return "transaction";
+    }
+
+    @GetMapping("/account/transactions")
+    public String getTransactions(@ModelAttribute CreateAccount createAccount) {
+
+        return "transaction_with_id";
+    }
+    
+    @PostMapping("/account/transactions")
+    public String gotTransactions(@ModelAttribute CreateAccount createAccount, Model model) {
+
+    	RestTemplate restTemplate = new RestTemplate();
+		List<Transaction> transactions= restTemplate.getForObject(URL_BACK + "/account/" + createAccount.getNom() + "/transactions", List.class);
+		
+        model.addAttribute("transactions", transactions);
         return "transaction";
     }
 
@@ -116,40 +110,7 @@ public class ControllerBancaire {
 
         return getTransactions(model);
     }
-
-    @GetMapping("/account/{id}/transactions")
-    public String getTransactions(@PathVariable(name = "id") String id, Model model) throws JSONException, IOException {
-
-        String json = readJsonFromUrl(URL_BACK + "/account/" + id + "/transactions");
-        ObjectMapper objMapper = new ObjectMapper();
-        List<Transaction> transactionResults = objMapper.readValue(json, List.class);
-
-        model.addAttribute("transactions", transactionResults);
-=======
-		RestTemplate restTemplate = new RestTemplate();
-		List<Transaction> transactions= restTemplate.getForObject(URL_BACK + "/transactions", List.class);
-
-        model.addAttribute("transactions", transactions);
-        return "transaction";
-    }
-
-    @GetMapping("/account/transactions")
-    public String getTransactions(@ModelAttribute CreateAccount createAccount) {
-
-        return "transaction_with_id";
-    }
     
-    @PostMapping("/account/transactions")
-    public String gotTransactions(@ModelAttribute CreateAccount createAccount, Model model) {
-
-    	RestTemplate restTemplate = new RestTemplate();
-		List<Transaction> transactions= restTemplate.getForObject(URL_BACK + "/account/" + createAccount.getNom() + "/transactions", List.class);
-		
-        model.addAttribute("transactions", transactions);
->>>>>>> add delete, transactions by id, removed json
-        return "transaction";
-    }
-
     @PostMapping("/account/create")
     public String createdAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) {
 
@@ -189,17 +150,7 @@ public class ControllerBancaire {
     }
 
     @PostMapping("/account/delete")
-<<<<<<< HEAD
-    public String deletedAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) throws
-            JSONException, IOException {
-        Boolean boolRes = false;
-        if (createAccount != null && createAccount.getNom() != null && !createAccount.getNom().isEmpty()) {
-            String json = readJsonFromUrl(URL_BACK + "/account/2/" + createAccount.getNom());
-            ObjectMapper objMapper = new ObjectMapper();
-            boolRes = objMapper.readValue(json, Boolean.class);
-        }
-        model.addAttribute("is_deleted", boolRes);
-=======
+
     public String deletedAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) {
     	if (createAccount != null && createAccount.getNom() != null && !createAccount.getNom().isEmpty()) {
             RestTemplate restTemplate = new RestTemplate();
@@ -213,28 +164,8 @@ public class ControllerBancaire {
             }
 
         }
->>>>>>> add delete, transactions by id, removed json
         return "delete_account";
     }
 
 
-    private String readJsonFromUrl(String url) throws IOException, JSONException {
-        InputStream is = new URL(url).openStream();
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String jsonText = readAll(rd);
-            return jsonText;
-        } finally {
-            is.close();
-        }
-    }
-
-    private String readAll(Reader rd) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        int cp;
-        while ((cp = rd.read()) != -1) {
-            sb.append((char) cp);
-        }
-        return sb.toString();
-    }
 }
