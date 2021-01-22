@@ -3,9 +3,16 @@ package org.imt.frontBancaire.Controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.imt.frontBancaire.Models.Account;
 import org.imt.frontBancaire.Models.CreateAccount;
+import org.imt.frontBancaire.Models.Order;
 import org.imt.frontBancaire.Models.Transaction;
+import org.imt.frontBancaire.config.MessagingConfig;
 import org.json.JSONException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,14 +24,17 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/tpmicroserviceBancaireFront")
 public class ControllerBancaire {
 
-    //modif test commit
-
     private static final String URL_BACK = "http://localhost:8080/tpmicroserviceBancaire";
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @GetMapping("")
     public String getIndex() {
@@ -50,6 +60,37 @@ public class ControllerBancaire {
         List<Transaction> transactionResults = objMapper.readValue(json, List.class);
 
         model.addAttribute("transactions", transactionResults);
+        return "transaction";
+    }
+
+    @PostMapping("/transactions/generate100")
+    public String postTransactions(Model model) {
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<List<Account>> comptesResEnt = restTemplate.exchange(URL_BACK + "/account", HttpMethod.GET, null, new ParameterizedTypeReference<List<Account>>() {
+        });
+        List<Account> comptes;
+        if (comptesResEnt.getStatusCode().is2xxSuccessful()) {
+            comptes = comptesResEnt.getBody();
+        } else
+            return "transaction";
+        if (comptes != null && !comptes.isEmpty()) {
+            IntStream.range(0, 100).forEachOrdered(n -> {
+                Order order = new Order();
+
+                Random rand = new Random();
+                int randNum = rand.nextInt(comptes.size());
+                Account compteA = comptes.get(randNum);
+                order.setName("RAND" + n);
+                order.setOrderId("ORDER_" + n);
+                order.setDescription("Randomly generated transaction");
+                order.setOriginId(compteA.getId());
+                order.setDestinationId(comptes.get(rand.nextInt(comptes.size())).getId());
+                order.setMontant(rand.nextLong());
+
+                rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE, MessagingConfig.ROUTING_KEY, order);
+            });
+        }
+
         return "transaction";
     }
 
