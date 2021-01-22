@@ -1,6 +1,5 @@
 package org.imt.frontBancaire.Controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.imt.frontBancaire.Models.Account;
 import org.imt.frontBancaire.Models.CreateAccount;
 import org.imt.frontBancaire.Models.Order;
@@ -13,7 +12,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,9 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.Charset;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -48,7 +44,7 @@ public class ControllerBancaire {
 
     public String getAccounts(Model model) {
         RestTemplate restTemplate = new RestTemplate();
-        List<Account> accounts= restTemplate.getForObject(URL_BACK + "/account", List.class);
+        List<Account> accounts = restTemplate.getForObject(URL_BACK + "/account", List.class);
         model.addAttribute("accounts", accounts);
         return "affichage";
     }
@@ -57,28 +53,22 @@ public class ControllerBancaire {
     public String getTransactions(Model model) throws JSONException, IOException {
 
 
-		RestTemplate restTemplate = new RestTemplate();
-		List<Transaction> transactions= restTemplate.getForObject(URL_BACK + "/transactions", List.class);
+        RestTemplate restTemplate = new RestTemplate();
+        List<Transaction> transactions = restTemplate.getForObject(URL_BACK + "/transactions", List.class);
 
         model.addAttribute("transactions", transactions);
         return "transaction";
     }
 
-    @GetMapping("/account/transactions")
-    public String getTransactions(@ModelAttribute CreateAccount createAccount) {
-
-        return "transaction_with_id";
-    }
-    
-    @PostMapping("/account/transactions")
+  /*  @PostMapping("/account/transactions")
     public String gotTransactions(@ModelAttribute CreateAccount createAccount, Model model) {
 
-    	RestTemplate restTemplate = new RestTemplate();
-		List<Transaction> transactions= restTemplate.getForObject(URL_BACK + "/account/" + createAccount.getNom() + "/transactions", List.class);
-		
+        RestTemplate restTemplate = new RestTemplate();
+        List<Transaction> transactions = restTemplate.getForObject(URL_BACK + "/account/" + createAccount.getNom() + "/transactions", List.class);
+
         model.addAttribute("transactions", transactions);
         return "transaction";
-    }
+    }*/
 
     @PostMapping("/transactions/generate100")
     public String postTransactions(Model model) throws IOException {
@@ -108,19 +98,22 @@ public class ControllerBancaire {
         return getTransactions(model);
     }
 
-    @GetMapping("/account/{id}/transactions")
-    public String getTransactions(@PathVariable(name = "id") String id, Model model) throws JSONException, IOException {
+    @GetMapping("/account/transactions")
+    public String getTransactions(@RequestParam(value = "compteId") String id, Model model) {
 
-        String json = readJsonFromUrl(URL_BACK + "/account/" + id + "/transactions");
+       /* String json = readJsonFromUrl(URL_BACK + "/account/" + id + "/transactions");
         ObjectMapper objMapper = new ObjectMapper();
-        List<Transaction> transactionResults = objMapper.readValue(json, List.class);
+        List<Transaction> transactionResults = objMapper.readValue(json, List.class);*/
+        RestTemplate restTemplate = new RestTemplate();
+        List<Transaction> transactionResults = restTemplate.getForObject(URL_BACK + "/account/" + id + "/transactions", List.class);
+
 
         model.addAttribute("transactions", transactionResults);
         return "transaction";
     }
 
     @PostMapping("/account/create")
-    public String createdAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) {
+    public String createdAccount(@ModelAttribute CreateAccount createAccount, Model model, BindingResult errors) {
 
         if (createAccount != null && createAccount.getNom() != null && !createAccount.getNom().isEmpty()) {
             Account account = new Account();
@@ -150,29 +143,27 @@ public class ControllerBancaire {
         return "create_account";
     }
 
-    @GetMapping("/account/delete")
+    /*@GetMapping("/account/delete")
     public String deleteAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) {
 
         model.addAttribute("is_deleted", false);
         return "delete_account";
-    }
+    }*/
 
     @PostMapping("/account/delete")
+    public String deleteAccount(Model model, @RequestParam(value = "compteId") String id) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.delete(URL_BACK + "/account/" + id);
+            model.addAttribute("is_deleted", true);
 
-    public String deletedAccount(@ModelAttribute CreateAccount createAccount, BindingResult errors, Model model) {
-    	if (createAccount != null && createAccount.getNom() != null && !createAccount.getNom().isEmpty()) {
-            RestTemplate restTemplate = new RestTemplate();
-            try {
-                restTemplate.delete(URL_BACK + "/account/"+createAccount.getNom());
-                model.addAttribute("is_deleted", true);
-
-            } catch (HttpClientErrorException e) {
-                System.out.println(e.getStatusCode());
-                model.addAttribute("is_deleted", false);
-            }
-
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getStatusCode());
+            model.addAttribute("is_deleted", false);
         }
-        return "delete_account";
+
+
+        return getAccounts(model);
     }
 
 

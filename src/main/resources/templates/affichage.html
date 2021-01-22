@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="ISO-8859-1">
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 	<title>Insert title here</title>
 </head>
 <body>
@@ -12,6 +12,8 @@
 	<tr>
 		<th> Name</th>
 		<th> Account</th>
+		<th> Liste Transactions</th>
+		<th> Supprimer Compte</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -21,6 +23,19 @@
 	<tr th:each="account : ${accounts}">
 		<td><span th:text="${account.nom}"> Name </span></td>
 		<td><span th:text="${account.iban}"> Iban </span></td>
+		<td style="text-align: center">
+			<form action="#" method="get"
+			      th:action="@{http://localhost:8082/tpmicroserviceBancaireFront/account/transactions}">
+				<button name="compteId" th:value="${account.compteId}" type="submit" value="">💱</button>
+			</form>
+		</td>
+		<td>
+			<form action="#" method="post"
+			      th:action="@{http://localhost:8082/tpmicroserviceBancaireFront/account/delete}"
+			      th:object="${account}">
+				<button name="compteId" th:value="${account.compteId}" type="submit">❌</button>
+			</form>
+		</td>
 	</tr>
 	</tbody>
 </table>
