@@ -7,8 +7,7 @@
 <body>
 <a class="btn btn-large btn-success" href="/"
    th:href="@{http://localhost:8082/tpmicroserviceBancaireFront}">Home</a> <br> <br>
-
-<form method="post" th:action="@{http://localhost:8082/tpmicroserviceBancaireFront/account/delete}"
+<form method="post" th:action="@{http://localhost:8082/tpmicroserviceBancaireFront/account/transactions}"
       th:object="${createAccount}">
 	<table border="1">
 		<tr>
@@ -21,8 +20,6 @@
 	</table>
 </form>
 
-<span th:if="${is_deleted}"> Account deleted </span>
-<span th:unless="${is_deleted}"> Error deleting account </span>
 
 </body>
 </html>
