@@ -64,7 +64,7 @@ public class ControllerBancaire {
     }
 
     @PostMapping("/transactions/generate100")
-    public String postTransactions(Model model) {
+    public String postTransactions(Model model) throws IOException {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<List<Account>> comptesResEnt = restTemplate.exchange(URL_BACK + "/account", HttpMethod.GET, null, new ParameterizedTypeReference<List<Account>>() {
         });
@@ -91,7 +91,7 @@ public class ControllerBancaire {
             });
         }
 
-        return "transaction";
+        return getTransactions(model);
     }
 
     @GetMapping("/account/{id}/transactions")

@@ -8,10 +8,6 @@
 <a class="btn btn-large btn-success" href="/"
    th:href="@{http://localhost:8082/tpmicroserviceBancaireFront}">Home</a> <br> <br>
 
-<form method="post" th:action="@{http://localhost:8082/tpmicroserviceBancaireFront/transactions/generate100}">
-	<button type="submit">Générer 100 transactions aléatoires</button>
-</form>
-
 <table>
 	<thead>
 	<tr>
@@ -27,6 +23,10 @@
 	</tr>
 	</tbody>
 </table>
+
+<form method="post" th:action="@{http://localhost:8082/tpmicroserviceBancaireFront/transactions/generate100}">
+	<button type="submit">Générer 100 transactions aléatoires</button>
+</form>
 
 </body>
 </html>
